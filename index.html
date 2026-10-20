@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceID - Reconocimiento Facial</title>
+    <!-- Tailwind CSS CDN v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlue: '#2563EB',
+                        brandBlueHover: '#1D4ED8',
+                        brandCyan: '#06B6D4',
+                        brandHeroDark: '#0B132B',
+                        brandFooterDark: '#0B1120',
+                        brandLightBg: '#F3F4F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome para los íconos del footer -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-brandLightBg text-gray-800 antialiased min-h-screen flex flex-col justify-between selection:bg-brandBlue selection:text-white">
+
+    <!-- 1. HEADER (BARRA DE NAVEGACIÓN) -->
+    <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- LOGO: ICONO CIAN + TEXTO FACEID -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 flex items-center justify-center text-brandCyan">
+                        <!-- SVG Icono Escáner Facial Fidelidad Exacta -->
+                        <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                            <circle cx="9" cy="9" r="1" fill="currentColor"></circle>
+                            <circle cx="15" cy="9" r="1" fill="currentColor"></circle>
+                            <path d="M10 15c.5.5 1.5 1 2 1s1.5-.5 2-1"></path>
+                            <path d="M12 11v2"></path>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">
+                        FaceID
+                    </span>
+                </a>
+
+                <!-- NAVEGACIÓN CENTRAL (ESCRITORIO) -->
+                <nav class="hidden md:flex items-center space-x-10">
+                    <a href="#inicio" class="text-slate-600 hover:text-brandBlue font-medium text-base transition">Inicio</a>
+                    <a href="#servicios" class="text-slate-600 hover:text-brandBlue font-medium text-base transition">Servicios</a>
+                    <a href="#contacto" class="text-slate-600 hover:text-brandBlue font-medium text-base transition">Contacto</a>
+                </nav>
+
+                <!-- BOTÓN DERECHA "INICIAR SESIÓN" -->
+                <div class="hidden md:flex items-center">
+                    <button onclick="showToast('Iniciando sesión...')" class="bg-brandBlue hover:bg-brandBlueHover text-white font-semibold px-6 py-2.5 rounded-xl shadow-sm transition-all duration-200 active:scale-95">
+                        Iniciar Sesión
+                    </button>
+                </div>
+
+                <!-- BOTÓN HAMBURGUESA (MÓVIL) -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" type="button" class="text-slate-700 hover:text-brandBlue p-2 rounded-lg focus:outline-none">
+                        <svg class="h-7 w-7" id="menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg class="h-7 w-7 hidden" id="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENÚ MÓVIL DESPLEGABLE -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 px-4 pt-3 pb-6 space-y-3 shadow-lg">
+            <a href="#inicio" class="mobile-link block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-brandBlue">Inicio</a>
+            <a href="#servicios" class="mobile-link block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-brandBlue">Servicios</a>
+            <a href="#contacto" class="mobile-link block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-blue-50 hover:text-brandBlue">Contacto</a>
+            <div class="pt-2">
+                <button onclick="showToast('Iniciando sesión...')" class="w-full bg-brandBlue hover:bg-brandBlueHover text-white font-semibold py-3 rounded-xl shadow">
+                    Iniciar Sesión
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NOTIFICACIÓN TIPO TOAST -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-brandCyan text-lg"></i>
+        <span id="toast-text" class="text-sm font-medium"></span>
+    </div>
+
+    <main class="flex-grow">
+        
+        <!-- 2. HERO SECTION (FONDO OSCURO AZULADO Y 2 COLUMNAS) -->
+        <section id="inicio" class="bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-white py-12 md:py-20 lg:py-24 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+                    
+                    <!-- COLUMNA IZQUIERDA: TEXTO Y BOTÓN PÍLDORA -->
+                    <div class="space-y-6 text-center md:text-left z-10">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                            Reconocimiento<br class="hidden sm:inline"/> Facial
+                        </h1>
+                        
+                        <p class="text-gray-300 text-lg sm:text-xl font-normal max-w-lg mx-auto md:mx-0 leading-relaxed">
+                            Tecnología que identifica rostros de forma rápida, segura y precisa.
+                        </p>
+                        
+                        <div class="pt-2">
+                            <a href="#servicios" class="inline-block bg-brandBlue hover:bg-brandBlueHover text-white font-semibold text-base px-8 py-3.5 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95">
+                                Conoce más
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA: IMAGEN DEL ROSTRO CON MÁS FIDELIDAD -->
+                    <div class="relative flex justify-center md:justify-end z-10">
+                        <div class="relative w-full max-w-md lg:max-w-lg rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50">
+                            <!-- IMAGEN DEL ROSTRO BIOMÉTRICO -->
+                            <img 
+                                src="rostro-reconocimiento.jpg" 
+                                alt="Rostro de reconocimiento facial" 
+                                class="w-full h-80 sm:h-96 md:h-[400px] object-cover object-center"
+                            />
+                            
+                            <!-- SUPERPOSICIÓN DEL ESQUEMA FACIAL BIOMÉTRICO Y MARCO CIAN -->
+                            <div class="absolute inset-0 bg-blue-950/10 pointer-events-none flex items-center justify-center">
+                                <!-- Marco de Enfoque Cian -->
+                                <div class="w-3/4 h-3/4 border-2 border-brandCyan/80 rounded-2xl relative flex flex-col justify-between p-4 shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                                    <div class="flex justify-between">
+                                        <div class="w-4 h-4 border-t-2 border-l-2 border-brandCyan"></div>
+                                        <div class="w-4 h-4 border-t-2 border-r-2 border-brandCyan"></div>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <div class="w-4 h-4 border-b-2 border-l-2 border-brandCyan"></div>
+                                        <div class="w-4 h-4 border-b-2 border-r-2 border-brandCyan"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SECCIÓN DE TARJETAS (CARDS EN FONDO GRIS CLARO #F3F4F6) -->
+        <section id="servicios" class="bg-brandLightBg py-16 md:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                    
+                    <!-- TARJETA 1: DETECCIÓN FACIAL -->
+                    <div class="bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100 text-center flex flex-col items-center justify-between hover:shadow-md transition-shadow">
+                        <div class="flex flex-col items-center">
+                            <!-- ICONO SUPERIOR ESCÁNER -->
+                            <div class="w-16 h-16 bg-blue-50 text-brandBlue rounded-2xl flex items-center justify-center mb-5">
+                                <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                    <circle cx="9" cy="9" r="1" fill="currentColor"></circle>
+                                    <circle cx="15" cy="9" r="1" fill="currentColor"></circle>
+                                    <path d="M10 15c.5.5 1.5 1 2 1s1.5-.5 2-1"></path>
+                                    <path d="M12 11v2"></path>
+                                </svg>
+                            </div>
+                            <!-- TÍTULO & DESCRIPCIÓN -->
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">Detección Facial</h2>
+                            <p class="text-gray-500 text-base max-w-xs leading-relaxed">
+                                Identifica rostros en tiempo real con alta precisión.
+                            </p>
+                        </div>
+                        <!-- BOTÓN VER MÁS -->
+                        <div class="mt-8 w-full max-w-xs">
+                            <button onclick="showToast('Cargando información de Detección Facial')" class="w-full bg-brandBlue hover:bg-brandBlueHover text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
+                                Ver más <span class="text-lg">→</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TARJETA 2: SEGURIDAD INTELIGENTE -->
+                    <div class="bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100 text-center flex flex-col items-center justify-between hover:shadow-md transition-shadow">
+                        <div class="flex flex-col items-center">
+                            <!-- ICONO SUPERIOR ESCUDO -->
+                            <div class="w-16 h-16 bg-blue-50 text-brandBlue rounded-2xl flex items-center justify-center mb-5">
+                                <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <!-- TÍTULO & DESCRIPCIÓN -->
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">Seguridad Inteligente</h2>
+                            <p class="text-gray-500 text-base max-w-xs leading-relaxed">
+                                Protege tu información con tecnología avanzada.
+                            </p>
+                        </div>
+                        <!-- BOTÓN VER MÁS -->
+                        <div class="mt-8 w-full max-w-xs">
+                            <button onclick="showToast('Cargando información de Seguridad Inteligente')" class="w-full bg-brandBlue hover:bg-brandBlueHover text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
+                                Ver más <span class="text-lg">→</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 4. FOOTER (FONDO MUY OSCURO #0B1120 CON DISPOSICIÓN EXACTA) -->
+    <footer id="contacto" class="bg-brandFooterDark text-gray-300 py-6 border-t border-gray-800/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 text-center md:text-left">
+                
+                <!-- BLOQUE IZQUIERDO: LOGO FACEID -->
+                <div class="flex items-center gap-2.5">
+                    <svg class="w-7 h-7 text-brandCyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                        <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                        <circle cx="9" cy="9" r="1" fill="currentColor"></circle>
+                        <circle cx="15" cy="9" r="1" fill="currentColor"></circle>
+                        <path d="M10 15c.5.5 1.5 1 2 1s1.5-.5 2-1"></path>
+                        <path d="M12 11v2"></path>
+                    </svg>
+                    <span class="text-xl font-bold text-white tracking-tight">FaceID</span>
+                </div>
+
+                <!-- ENLACES CENTRALES -->
+                <nav class="flex items-center space-x-6 text-sm font-medium text-gray-400">
+                    <a href="#inicio" class="hover:text-white transition">Inicio</a>
+                    <a href="#servicios" class="hover:text-white transition">Servicios</a>
+                    <a href="#contacto" class="hover:text-white transition">Contacto</a>
+                </nav>
+
+                <!-- REDES SOCIALES -->
+                <div class="flex items-center space-x-4 text-gray-400">
+                    <a href="#" onclick="showToast('Facebook')" class="hover:text-white text-base transition" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="#" onclick="showToast('Instagram')" class="hover:text-white text-base transition" aria-label="Instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" onclick="showToast('LinkedIn')" class="hover:text-white text-base transition" aria-label="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                </div>
+
+                <!-- DERECHOS RESERVADOS -->
+                <div class="text-xs text-gray-400 font-normal">
+                    &copy; 2026 FaceID. Todos los derechos reservados.
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVIDAD CON JAVASCRIPT -->
+    <script>
+        // Lógica del menú móvil
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const iconMenu = document.getElementById('menu-icon');
+        const iconClose = document.getElementById('close-icon');
+
+        btn.addEventListener('click', () => {
+            const isHidden = menu.classList.contains('hidden');
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                iconMenu.classList.add('hidden');
+                iconClose.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+                iconMenu.classList.remove('hidden');
+                iconClose.classList.add('hidden');
+            }
+        });
+
+        // Ocultar menú al hacer click en opciones
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+                iconMenu.classList.remove('hidden');
+                iconClose.classList.add('hidden');
+            });
+        });
+
+        // Mostrar un aviso sutil sin alert()
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toastText.textContent = message;
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
